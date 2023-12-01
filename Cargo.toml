@@ -1,0 +1,26 @@
+[features]
+default = ["solve"]                             # 1
+solve = []
+submit1 = []
+submit2 = []
+
+[package]
+name = "advent_of_code"
+version = "0.1.0"
+authors = ["Thomas Conrad"]
+edition = "2021"
+default-run = "advent_of_code"
+publish = false
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pico-args = "0.5.0"
+ahash = "0.8.2"
+regex = "1.7.0"
+itertools = "0.10.5"
+rayon = "1.6"
+glm = "0.2.3"
+hashbrown = { version = "0.13.1", features = ["rayon"] }
+
+[toolchain]
+channel = "nightly"

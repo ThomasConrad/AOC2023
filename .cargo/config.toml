@@ -1,0 +1,14 @@
+[alias]
+scaffold = "run --bin scaffold -- "
+download = "run --bin download -- "
+
+solve = "run --bin"
+time = "run --release --bin"
+submit1 = "run --no-default-features -F submit1 --release --bin"
+submit2 = "run --no-default-features -F submit2 --release --bin"
+
+try = "test --bin"
+all = "run"
+
+[env]
+YEAR = "2023"
