@@ -31,7 +31,7 @@ fn parse_to_matrix(input: &str) -> (u32, Vec<Vec<SchematicPart>>) {
                     }
                     row.push(SchematicPart::Number((id, num.parse::<u32>().unwrap())));
                 }
-                _ => row.push(SchematicPart::Symbol(c.clone())),
+                _ => row.push(SchematicPart::Symbol(*c)),
             }
         }
         matrix.push(row);

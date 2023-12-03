@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub fn part_one(input: &str) -> Option<u32> {
     let lines = input.lines();
     let mut result = 0;
@@ -24,69 +22,56 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = HashMap::from([
-        ("one", 1),
-        ("two", 2),
-        ("three", 3),
-        ("four", 4),
-        ("five", 5),
-        ("six", 6),
-        ("seven", 7),
-        ("eight", 8),
-        ("nine", 9),
-    ]);
+    let map = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
     let lines = input.lines();
     let mut result = 0;
     for line in lines {
         let mut firstnumber = 0;
         let mut firstindex = line.len();
         for (i, c) in line.chars().enumerate() {
-            if c.is_ascii_digit() {
-                let num = c.to_digit(10).unwrap();
+            if let Some(num) = c.to_digit(10) {
                 firstnumber = num;
                 firstindex = i;
                 break;
             }
         }
-        for number_name in map.keys() {
-            let mut matches: Vec<usize> = line.match_indices(number_name).map(|m| m.0).collect();
-            matches.sort();
-            if matches.is_empty() {
-                let i = matches.first().unwrap();
-                if i < &firstindex {
-                    firstindex = *i;
-                    firstnumber = *map.get(number_name).unwrap();
+        if firstindex >= 3 {
+            for (num, number_name) in map.iter().enumerate() {
+                let i = line.find(number_name);
+                if let Some(i) = i {
+                    if i < firstindex {
+                        firstindex = i;
+                        firstnumber = (num + 1) as u32;
+                    }
                 }
             }
         }
-        assert!(firstindex < line.len());
-        assert!(firstnumber > 0);
         result += firstnumber * 10;
 
         //reverse ordering now
 
         let mut lastnumber = 0;
-        let mut lastindex = None;
+        let mut lastindex = 0;
         for (i, c) in line.chars().rev().enumerate() {
-            if c.is_ascii_digit() {
-                let num = c.to_digit(10).unwrap();
+            if let Some(num) = c.to_digit(10) {
                 lastnumber = num;
-                lastindex = Some(line.chars().count() - 1 - i);
+                lastindex = line.len() - 1 - i;
                 break;
             }
         }
-        for number_name in map.keys() {
-            let mut matches: Vec<usize> = line.match_indices(number_name).map(|m| m.0).collect();
-            matches.sort();
-            if matches.is_empty() {
-                let i = matches.last().unwrap();
-                if lastindex.is_none() || *i > lastindex.unwrap() {
-                    lastnumber = *map.get(number_name).unwrap();
-                    lastindex = Some(*i);
+        if lastindex + 3 < line.len() {
+            for (num, number_name) in map.iter().enumerate() {
+                let i = line.rfind(number_name);
+                if let Some(i) = i {
+                    if i > lastindex {
+                        lastindex = i;
+                        lastnumber = (num + 1) as u32;
+                    }
                 }
             }
         }
-        assert!(lastindex.is_some());
         result += lastnumber;
     }
 

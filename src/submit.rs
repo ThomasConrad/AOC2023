@@ -23,7 +23,7 @@ pub fn submit(day: u32, part: u32, solver: impl FnOnce(&str) -> Option<u32>, inp
     }
 
     let mut cmd_args = vec![];
-    if let Some(year) = std::env::var("YEAR").ok() {
+    if let Ok(year) = std::env::var("YEAR") {
         cmd_args.push("--year".into());
         cmd_args.push(year.to_string());
     }
