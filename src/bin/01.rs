@@ -5,14 +5,14 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut result = 0;
     for line in lines {
         for c in line.chars() {
-            if c.is_digit(10) {
+            if c.is_ascii_digit() {
                 let num = c.to_digit(10).unwrap();
                 result += num * 10;
                 break;
             }
         }
         for c in line.chars().rev() {
-            if c.is_digit(10) {
+            if c.is_ascii_digit() {
                 let num = c.to_digit(10).unwrap();
                 result += num;
                 break;
@@ -37,11 +37,11 @@ pub fn part_two(input: &str) -> Option<u32> {
     ]);
     let lines = input.lines();
     let mut result = 0;
-    for (idx, line) in lines.enumerate() {
+    for line in lines {
         let mut firstnumber = 0;
         let mut firstindex = line.len();
         for (i, c) in line.chars().enumerate() {
-            if c.is_digit(10) {
+            if c.is_ascii_digit() {
                 let num = c.to_digit(10).unwrap();
                 firstnumber = num;
                 firstindex = i;
@@ -49,11 +49,9 @@ pub fn part_two(input: &str) -> Option<u32> {
             }
         }
         for number_name in map.keys() {
-            // println!("number_name: {}", number_name);
-            // println!("line: {}", line);
             let mut matches: Vec<usize> = line.match_indices(number_name).map(|m| m.0).collect();
             matches.sort();
-            if matches.len() > 0 {
+            if matches.is_empty() {
                 let i = matches.first().unwrap();
                 if i < &firstindex {
                     firstindex = *i;
@@ -63,7 +61,6 @@ pub fn part_two(input: &str) -> Option<u32> {
         }
         assert!(firstindex < line.len());
         assert!(firstnumber > 0);
-        // println!("firstnumber: {}", firstnumber);
         result += firstnumber * 10;
 
         //reverse ordering now
@@ -71,7 +68,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         let mut lastnumber = 0;
         let mut lastindex = None;
         for (i, c) in line.chars().rev().enumerate() {
-            if c.is_digit(10) {
+            if c.is_ascii_digit() {
                 let num = c.to_digit(10).unwrap();
                 lastnumber = num;
                 lastindex = Some(line.chars().count() - 1 - i);
@@ -81,7 +78,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         for number_name in map.keys() {
             let mut matches: Vec<usize> = line.match_indices(number_name).map(|m| m.0).collect();
             matches.sort();
-            if matches.len() > 0 {
+            if matches.is_empty() {
                 let i = matches.last().unwrap();
                 if lastindex.is_none() || *i > lastindex.unwrap() {
                     lastnumber = *map.get(number_name).unwrap();
