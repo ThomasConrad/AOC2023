@@ -1,3 +1,4 @@
+use std::fmt::Display;
 /*
  * This file contains template code.
  * There is no need to edit this file unless you want to change template functionality.
@@ -6,9 +7,14 @@ use std::io::Write;
 use std::process;
 use std::{io, process::Command};
 
-pub fn submit(day: u32, part: u32, solver: impl FnOnce(&str) -> Option<u32>, input: &str) {
+pub fn submit(
+    day: u32,
+    part: u32,
+    solver: impl FnOnce(&str) -> Option<Box<dyn Display>>,
+    input: &str,
+) {
     let answer = solver(input);
-    match answer {
+    match &answer {
         Some(answer) => {
             println!("Submitting answer: {}", answer);
         }
@@ -32,10 +38,13 @@ pub fn submit(day: u32, part: u32, solver: impl FnOnce(&str) -> Option<u32>, inp
         day.to_string(),
         "submit".into(),
         part.to_string(),
-        answer.unwrap().to_string(),
     ]);
 
-    println!("Submitting output with >aoc {}", cmd_args.join(" "));
+    println!(
+        "Submitting output with >aoc {} {}",
+        cmd_args.join(" "),
+        answer.unwrap()
+    );
 
     match Command::new("aoc").args(cmd_args).output() {
         Ok(cmd_output) => {
