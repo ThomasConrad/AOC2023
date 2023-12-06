@@ -1,6 +1,3 @@
-use hashbrown::HashSet;
-use itertools::Itertools;
-
 #[derive(Debug)]
 struct Mapping {
     source: u64,
@@ -115,7 +112,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         seed_ranges.push([pair[0], pair[1]]);
     }
     let mut seed_ranges_swap = Vec::<[u64; 2]>::new();
-    let mut iter = 0;
+    let _iter = 0;
     for mapping_set in &mapping_sets {
         // println!("{:?}", seed_ranges);
         while let Some(seed_range) = seed_ranges.pop() {
