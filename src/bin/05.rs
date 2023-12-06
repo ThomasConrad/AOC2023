@@ -1,11 +1,9 @@
-#[derive(Debug)]
 struct Mapping {
     source: u64,
     destination: u64,
     range: u64,
 }
 
-#[derive(Debug)]
 struct MappingSet {
     mappings: Vec<Mapping>,
 }
@@ -86,7 +84,8 @@ fn parse(input: &str) -> (Vec<u64>, Vec<MappingSet>) {
     (seeds, mapping_sets)
 }
 
-fn get_lowest(seeds: Vec<u64>, mapping_sets: Vec<MappingSet>) -> u64 {
+pub fn part_one(input: &str) -> Option<u64> {
+    let (seeds, mapping_sets) = parse(input);
     let mut lowest = u64::MAX;
     for seed in seeds {
         let mut current = seed;
@@ -97,12 +96,7 @@ fn get_lowest(seeds: Vec<u64>, mapping_sets: Vec<MappingSet>) -> u64 {
             lowest = current;
         }
     }
-    lowest
-}
-
-pub fn part_one(input: &str) -> Option<u64> {
-    let (seeds, mapping_sets) = parse(input);
-    Some(get_lowest(seeds, mapping_sets))
+    Some(lowest)
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
@@ -112,12 +106,9 @@ pub fn part_two(input: &str) -> Option<u64> {
         seed_ranges.push([pair[0], pair[1]]);
     }
     let mut seed_ranges_swap = Vec::<[u64; 2]>::new();
-    let _iter = 0;
     for mapping_set in &mapping_sets {
-        // println!("{:?}", seed_ranges);
         while let Some(seed_range) = seed_ranges.pop() {
             let (destination, range) = mapping_set.get_destination(seed_range[0]);
-            // println!("{} {} {}", destination, range, seed_range[0]);
             if range < seed_range[1] {
                 seed_ranges_swap.push([destination, range]);
                 seed_ranges.push([seed_range[0] + range, seed_range[1] - range]);
@@ -126,15 +117,9 @@ pub fn part_two(input: &str) -> Option<u64> {
             }
         }
         std::mem::swap(&mut seed_ranges, &mut seed_ranges_swap);
-        // iter += 1;
-        // if iter == 3 {
-        //     return Some(2);
-        // }
     }
 
-    // println!("{:?}", seed_ranges);
-    seed_ranges.sort_by(|a, b| a[0].cmp(&b[0]));
-    Some(seed_ranges[0][0])
+    Some(seed_ranges.iter().min().unwrap()[0])
 }
 
 #[cfg(feature = "solve")]
