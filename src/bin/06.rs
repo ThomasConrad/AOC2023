@@ -16,7 +16,7 @@ fn get_combinations(input: &[f64; 2]) -> u32 {
 
     let first_root = 0.5 * (time - (time * time - 4.0 * dist).sqrt());
     let second_root = 0.5 * (time + (time * time - 4.0 * dist).sqrt());
-    0f64.max(second_root.ceil() - first_root.floor()) as u32 - 1
+    (second_root.ceil() - first_root.floor()) as u32 - 1
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
