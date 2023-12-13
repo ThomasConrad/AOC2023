@@ -264,6 +264,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             }
         }
     }
+    #[cfg(debug_assertions)]
     for line in new_map.iter() {
         println!("{}", line.iter().map(to_char).collect::<String>());
     }
@@ -296,12 +297,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 10);
-        assert_eq!(part_one(&input), Some(22));
+        assert_eq!(part_one(&input), Some(23));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 10);
-        assert_eq!(part_two(&input), Some(24));
+        assert_eq!(part_two(&input), Some(4));
     }
 }
