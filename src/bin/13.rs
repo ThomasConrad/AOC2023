@@ -26,7 +26,6 @@ fn find_reflections(grids: [Vec<Vec<char>>; 2], goal_diff: u32) -> u32 {
             loop {
                 //reach edge
                 if i < dist || i + dist > grid.len() {
-                    // println!("{}", diffs);
                     if diffs == goal_diff {
                         return if j == 1 { i } else { i * 100 } as u32;
                     }
@@ -34,7 +33,6 @@ fn find_reflections(grids: [Vec<Vec<char>>; 2], goal_diff: u32) -> u32 {
                 }
                 diffs += count_diff(&grid[i - dist], &grid[i + dist - 1]);
 
-                // println!("{}", diffs);
                 if diffs > goal_diff {
                     continue 'outer;
                 }
@@ -42,12 +40,10 @@ fn find_reflections(grids: [Vec<Vec<char>>; 2], goal_diff: u32) -> u32 {
             }
         }
     }
-    unreachable!()
-    //vertical reflection
+    panic!("No solution found");
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    //Naive, lets assume only one line of reflection for each
     Some(parse(input).map(|s| find_reflections(s, 0)).sum())
 }
 
