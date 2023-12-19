@@ -14,7 +14,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         .into()
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct Lens {
     label: String,
     f: u8,
@@ -28,27 +28,26 @@ impl PartialEq for Lens {
 
 impl Eq for Lens {}
 
-#[derive(Debug)]
-struct HashMap {
-    boxes: Vec<Vec<Lens>>,
+struct HashMap<T> {
+    boxes: Vec<Vec<T>>,
 }
 
-impl HashMap {
+impl<T: Clone + Eq> HashMap<T> {
     pub fn new() -> Self {
         Self {
             boxes: vec![Vec::new(); 256],
         }
     }
 
-    pub fn insert(&mut self, key: u8, value: Lens) {
-        if let Some(lens) = self.boxes[key as usize].iter_mut().find(|l| **l == value) {
-            lens.f = value.f;
+    pub fn insert(&mut self, key: u8, value: T) {
+        if let Some(item) = self.boxes[key as usize].iter_mut().find(|l| **l == value) {
+            *item = value;
             return;
         }
         self.boxes[key as usize].push(value);
     }
 
-    pub fn remove(&mut self, key: u8, value: &Lens) {
+    pub fn remove(&mut self, key: u8, value: &T) {
         if let Some(idx) = self.boxes[key as usize].iter().position(|l| *l == *value) {
             self.boxes[key as usize].remove(idx);
         }
