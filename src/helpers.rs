@@ -17,13 +17,17 @@ macro_rules! skip_fail {
 }
 
 //Safe 2d getter
-pub fn get_safe<T: Copy>(coord: [isize; 2], graph: &Vec<Vec<T>>) -> Option<T> {
-    if coord[0] < 0 || coord[1] < 0 {
+pub fn get_safe<T: Copy>(coord: [isize; 2], graph: &Vec<Vec<T>>) -> Option<&T> {
+    if coord[0] < 0
+        || coord[1] < 0
+        || coord[1] as usize >= graph.len()
+        || coord[0] as usize >= graph[0].len()
+    {
         return None;
     }
-    let y: usize = coord[1].try_into().ok()?;
-    let x: usize = coord[0].try_into().ok()?;
-    Some(*graph.get(y)?.get(x)?)
+    let y: usize = coord[1] as usize;
+    let x: usize = coord[0] as usize;
+    Some(&graph[y][x])
 }
 
 pub fn gcd(n1: u32, n2: u32) -> u32 {

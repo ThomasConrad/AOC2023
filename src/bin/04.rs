@@ -1,73 +1,84 @@
-use ahash::HashSet;
+use advent_of_code::helpers::get_safe;
 
-fn parse(input: &str) -> Vec<(HashSet<u32>, Vec<u32>)> {
-    input
-        .lines()
-        .map(|line| {
-            let parts = line.split('|').collect::<Vec<_>>();
-            let winning = parts[0]
-                .split(':')
-                .nth(1)
-                .unwrap()
-                .split_whitespace()
-                .map(|n| n.parse().unwrap())
-                .collect();
-            let nums: Vec<u32> = parts[1]
-                .split_whitespace()
-                .map(|n| n.parse().unwrap())
-                .collect();
-            (winning, nums)
-        })
-        .collect()
-}
-pub fn part_one(input: &str) -> Option<u32> {
-    let games = parse(input);
-    let mut score = 0;
-    for (winning, nums) in games {
-        let mut num_matches = 0;
-        for num in nums {
-            if winning.contains(&num) {
-                num_matches += 1;
+static DIRECTIONS: [[isize; 2]; 8] = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+    [1, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+];
+
+fn start_search(field: &Vec<Vec<char>>, x: usize, y: usize) -> u32 {
+    if field[y as usize][x as usize] != 'X' {
+        return 0;
+    }
+    let mut count = 0;
+
+    'outer: for dir in DIRECTIONS {
+        let mut x = x as isize;
+        let mut y = y as isize;
+
+        for letter in ['M', 'A', 'S'] {
+            x += dir[0];
+            y += dir[1];
+            if get_safe([x, y], field) != Some(&letter) {
+                continue 'outer;
             }
         }
-        if num_matches > 0 {
-            score += 1 << (num_matches - 1);
-        }
+        count += 1;
     }
-    Some(score as u32)
+    count
 }
 
-struct Game {
-    num: u32,
-    amount: u32,
+fn search_cross(field: &Vec<Vec<char>>, x: usize, y: usize) -> bool {
+    if field[y as usize][x as usize] != 'A' {
+        return false;
+    }
+
+    for diag in [[1, 1], [1, -1]] {
+        let diag_fwd = get_safe([x as isize + diag[0], y as isize + diag[1]], field);
+        let diag_bwd = get_safe([x as isize - diag[0], y as isize - diag[1]], field);
+        match (diag_fwd, diag_bwd) {
+            (Some('M'), Some('S')) | (Some('S'), Some('M')) => (),
+            _ => return false,
+        }
+    }
+    true
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let field = input
+        .lines()
+        .map(|l| l.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
+
+    let mut count = 0;
+    for y in 0..field.len() {
+        for x in 0..field[y].len() {
+            count += start_search(&field, x as usize, y as usize);
+        }
+    }
+    Some(count)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let games = parse(input);
-    let mut queue = Vec::with_capacity(games.len());
-    for i in 0..games.len() {
-        queue.push(Game {
-            num: i as u32,
-            amount: 1,
-        });
-    }
+    let field = input
+        .lines()
+        .map(|l| l.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
 
-    for i in 0..queue.len() {
-        let game_num = queue[i].num;
-        let game_amount = queue[i].amount;
-        let mut num_matches = 0;
-
-        for num in &games[game_num as usize].1 {
-            if games[game_num as usize].0.contains(num) {
-                num_matches += 1;
+    let mut count = 0;
+    for y in 1..field.len() - 1 {
+        for x in 1..field[y].len() - 1 {
+            if search_cross(&field, x as usize, y as usize) {
+                count += 1;
             }
         }
-        for j in 0..num_matches {
-            queue[i + j + 1].amount += game_amount;
-        }
     }
-
-    Some(queue.into_iter().map(|g| g.amount).sum())
+    Some(count)
 }
 
 #[cfg(feature = "solve")]
@@ -96,12 +107,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 4);
-        assert_eq!(part_one(&input), Some(13));
+        assert_eq!(part_one(&input), Some(18));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 4);
-        assert_eq!(part_two(&input), Some(30));
+        assert_eq!(part_two(&input), Some(9));
     }
 }

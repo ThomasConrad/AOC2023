@@ -91,8 +91,9 @@ fn main() {
         }
     }
 
-    match fs::rename(&tmp_file_path, &input_path) {
+    match fs::copy(&tmp_file_path, &input_path) {
         Ok(_) => {
+            remove_file(&tmp_file_path);
             println!("---");
             println!("🎄 Successfully wrote input to \"{}\".", &input_path);
             exit_with_status(0, &tmp_file_path);

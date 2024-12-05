@@ -1,125 +1,148 @@
-struct Mapping {
-    source: u64,
-    destination: u64,
-    range: u64,
+#[derive(Debug)]
+struct BitField {
+    data: Vec<u128>,
 }
 
-struct MappingSet {
-    mappings: Vec<Mapping>,
-}
-
-impl Mapping {
-    fn new(source: u64, destination: u64, range: u64) -> Self {
-        Self {
-            source,
-            destination,
-            range,
-        }
-    }
-
-    fn get_destination(&self, source: u64) -> Option<u64> {
-        if source >= self.source && source < self.source + self.range {
-            Some(self.destination + source - self.source)
-        } else {
-            None
-        }
-    }
-}
-
-impl MappingSet {
+impl BitField {
     fn new() -> Self {
-        Self {
-            mappings: Vec::new(),
+        Self { data: Vec::new() }
+    }
+
+    fn set(&mut self, index: [u32; 2]) {
+        let idx = index[0] as usize;
+        let bit = index[1] as u128;
+        if idx >= self.data.len() {
+            self.data.resize(idx + 1, 0);
+        }
+        self.data[idx] |= 1 << bit;
+    }
+
+    fn _get(&self, index: [u32; 2]) -> bool {
+        let idx = index[0] as usize;
+        let bit = index[1] as u128;
+        if idx >= self.data.len() {
+            false
+        } else {
+            self.data[idx] & (1 << bit) != 0
         }
     }
 
-    fn get_destination(&self, source: u64) -> (u64, u64) {
-        for mapping in &self.mappings {
-            if let Some(destination) = mapping.get_destination(source) {
-                return (
-                    destination,
-                    mapping.range - (destination - mapping.destination),
-                );
+    fn row(&self, index: u32) -> u128 {
+        self.data[index as usize]
+    }
+
+    fn factors(&self, index: u32) -> Vec<u32> {
+        let mut factors = Vec::new();
+        for i in 0..128 {
+            if self.data[index as usize] & (1 << i) != 0 {
+                factors.push(i);
             }
         }
-        (source, self.get_next(source).unwrap_or(u64::MAX) - source)
-    }
-
-    fn push(&mut self, mapping: Mapping) {
-        self.mappings.push(mapping);
-    }
-
-    fn get_next(&self, source: u64) -> Option<u64> {
-        let mut closest = None;
-        for mapping in &self.mappings {
-            if mapping.source > source && (closest.is_none() || mapping.source < closest.unwrap()) {
-                closest = Some(mapping.source);
-            }
-        }
-        closest
+        factors
     }
 }
 
-fn parse(input: &str) -> (Vec<u64>, Vec<MappingSet>) {
-    let seeds: Vec<u64> = input
+impl std::fmt::Display for BitField {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        for (i, &n) in self.data.iter().enumerate() {
+            write!(f, "{:3}: ", i)?;
+            for j in 0..128 {
+                write!(f, "{}", if n & (1 << j) != 0 { '#' } else { '.' })?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
+
+fn parse(input: &str) -> (BitField, Vec<Vec<u32>>) {
+    let (rules, updates) = input.split_once("\n\n").unwrap();
+
+    let mut bitfield = BitField::new();
+    for rule in rules.lines() {
+        let (prior, posterior) = rule.split_once("|").unwrap();
+        bitfield.set([prior.parse().unwrap(), posterior.parse().unwrap()]);
+    }
+
+    let updates = updates
         .lines()
-        .next()
-        .unwrap()
-        .split_whitespace()
-        .skip(1)
-        .map(|n| n.parse().unwrap())
+        .map(|line| {
+            line.split(',')
+                .map(|n| n.parse().unwrap())
+                .collect::<Vec<_>>()
+        })
         .collect();
-    let mut mapping_sets = Vec::new();
-    for chunk in input.split("\n\n").skip(1) {
-        let mut mappings = MappingSet::new();
-        for line in chunk.lines().skip(1) {
-            let mapping = line.split_whitespace().collect::<Vec<_>>();
-            let source = mapping[1].parse().unwrap();
-            let destination = mapping[0].parse().unwrap();
-            let range = mapping[2].parse().unwrap();
-            mappings.push(Mapping::new(source, destination, range));
-        }
-        mapping_sets.push(mappings);
-    }
-    (seeds, mapping_sets)
+
+    (bitfield, updates)
 }
 
-pub fn part_one(input: &str) -> Option<u64> {
-    let (seeds, mapping_sets) = parse(input);
-    let mut lowest = u64::MAX;
-    for seed in seeds {
-        let mut current = seed;
-        for mapping_set in &mapping_sets {
-            current = mapping_set.get_destination(current).0;
-        }
-        if lowest > current {
-            lowest = current;
-        }
-    }
-    Some(lowest)
-}
-
-pub fn part_two(input: &str) -> Option<u64> {
-    let (seeds, mapping_sets) = parse(input);
-    let mut seed_ranges = Vec::<[u64; 2]>::new();
-    for pair in seeds.chunks(2) {
-        seed_ranges.push([pair[0], pair[1]]);
-    }
-    let mut seed_ranges_swap = Vec::<[u64; 2]>::new();
-    for mapping_set in &mapping_sets {
-        while let Some(seed_range) = seed_ranges.pop() {
-            let (destination, range) = mapping_set.get_destination(seed_range[0]);
-            if range < seed_range[1] {
-                seed_ranges_swap.push([destination, range]);
-                seed_ranges.push([seed_range[0] + range, seed_range[1] - range]);
-            } else {
-                seed_ranges_swap.push([destination, seed_range[1]]);
+fn check_ordering(bitfield: &BitField, update_list: &[u32]) -> bool {
+    let mut seen = vec![];
+    for &update in update_list {
+        if bitfield.row(update) > 0 {
+            //check if factors are in illegal order
+            let factors = bitfield.factors(update);
+            for &factor in &factors {
+                if seen.contains(&factor) {
+                    return false;
+                }
             }
         }
-        std::mem::swap(&mut seed_ranges, &mut seed_ranges_swap);
+        seen.push(update);
     }
+    true
+}
 
-    Some(seed_ranges.iter().min().unwrap()[0])
+fn fix_ordering(bitfield: &BitField, update_list: &mut Vec<u32>) {
+    let mut i = 0;
+    let mut seen = vec![];
+    'outer: while i < update_list.len() {
+        let update = update_list[i];
+        if bitfield.row(update) > 0 {
+            //check if factors are in illegal order
+            let factors = bitfield.factors(update);
+            for &factor in &factors {
+                if seen.contains(&factor) {
+                    let idx = seen.iter().position(|&x| x == factor).unwrap();
+                    update_list.swap(i, idx);
+
+                    //reset loop
+                    seen.clear();
+                    i = 0;
+                    continue 'outer;
+                }
+            }
+        }
+        seen.push(update);
+        i += 1;
+    }
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let (bitfield, updates) = parse(input);
+
+    Some(
+        updates
+            .iter()
+            .filter(|&update_list| check_ordering(&bitfield, update_list))
+            .map(|update_list| update_list[update_list.len() / 2])
+            .sum(),
+    )
+}
+
+pub fn part_two(input: &str) -> Option<u32> {
+    let (bitfield, mut updates) = parse(input);
+
+    Some(
+        updates
+            .iter_mut()
+            .filter(|update_list| !check_ordering(&bitfield, update_list))
+            .map(|update_list| {
+                fix_ordering(&bitfield, update_list);
+                update_list[update_list.len() / 2]
+            })
+            .sum(),
+    )
 }
 
 #[cfg(feature = "solve")]
@@ -148,12 +171,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 5);
-        assert_eq!(part_one(&input), Some(35));
+        assert_eq!(part_one(&input), Some(143));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 5);
-        assert_eq!(part_two(&input), Some(46));
+        assert_eq!(part_two(&input), None);
     }
 }
