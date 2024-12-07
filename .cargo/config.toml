@@ -11,4 +11,4 @@ try = "test --bin"
 all = "run"
 
 [env]
-YEAR = "2023"
+YEAR = "2024"

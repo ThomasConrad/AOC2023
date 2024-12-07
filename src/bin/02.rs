@@ -1,45 +1,71 @@
 pub fn part_one(input: &str) -> Option<u32> {
-    let map = ["red", "green", "blue"];
-    let avail = [12, 13, 14];
-    let mut id_sum = 0;
-    'outer: for (id, line) in input.lines().enumerate() {
-        let mut result = [0; 3];
-        let words: Vec<&str> = line.split_whitespace().collect();
-        for (i, col_string) in map.iter().enumerate() {
-            for (j, word) in words.iter().enumerate() {
-                if word.contains(col_string) {
-                    let num = words[j - 1].parse::<u32>().unwrap();
-                    result[i] = std::cmp::max(result[i], num);
-                }
-            }
-        }
-        for (num_avail, num_req) in avail.iter().zip(result.iter()) {
-            if num_req > num_avail {
-                continue 'outer;
-            }
-        }
-        id_sum += (id + 1) as u32;
-    }
-    Some(id_sum)
+    let reports = input
+        .lines()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|num| num.parse::<u32>().unwrap())
+                .collect::<Vec<u32>>()
+        })
+        .collect::<Vec<_>>();
+
+    Some(
+        reports
+            .into_iter()
+            .map(|row| {
+                let diffs: Vec<i32> = row
+                    .windows(2)
+                    .map(|window| window[1] as i32 - window[0] as i32)
+                    .collect();
+
+                (*diffs.iter().max().unwrap(), *diffs.iter().min().unwrap())
+            })
+            .filter(|(max, min)| {
+                max * min > 0 && max.abs().max(min.abs()) <= 3 && max.abs().min(min.abs()) >= 1
+            })
+            .count() as u32,
+    )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let map = ["red", "green", "blue"];
-    let mut power_sum = 0;
-    for line in input.lines() {
-        let mut result = [0; 3];
-        let words: Vec<&str> = line.split_whitespace().collect();
-        for (i, col_string) in map.iter().enumerate() {
-            for (j, word) in words.iter().enumerate() {
-                if word.contains(col_string) {
-                    let num = words[j - 1].parse::<u32>().unwrap();
-                    result[i] = std::cmp::max(result[i], num);
+    let reports = input
+        .lines()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|num| num.parse::<u32>().unwrap())
+                .collect::<Vec<u32>>()
+        })
+        .collect::<Vec<_>>();
+
+    Some(
+        reports
+            .into_iter()
+            .filter(|row| {
+                let test_fn = |row: Vec<u32>| {
+                    let diffs: Vec<i32> = row
+                        .windows(2)
+                        .map(|window| window[1] as i32 - window[0] as i32)
+                        .collect();
+
+                    let max = diffs.iter().max().unwrap();
+                    let min = diffs.iter().min().unwrap();
+
+                    max * min > 0 && max.abs().max(min.abs()) <= 3 && max.abs().min(min.abs()) >= 1
+                };
+
+                if !test_fn(row.clone()) {
+                    for i in 0..row.len() {
+                        let mut new_row = row.clone();
+                        new_row.remove(i);
+                        if test_fn(new_row) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
-            }
-        }
-        power_sum += result.iter().product::<u32>();
-    }
-    Some(power_sum)
+                true
+            })
+            .count() as u32,
+    )
 }
 
 #[cfg(feature = "solve")]
@@ -68,12 +94,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 2);
-        assert_eq!(part_one(&input), Some(8));
+        assert_eq!(part_one(&input), Some(2));
     }
 
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 2);
-        assert_eq!(part_two(&input), Some(2286));
+        assert_eq!(part_two(&input), Some(4));
     }
 }

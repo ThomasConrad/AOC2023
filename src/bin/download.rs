@@ -91,14 +91,18 @@ fn main() {
         }
     }
 
-    match fs::rename(&tmp_file_path, &input_path) {
+    match fs::copy(&tmp_file_path, &input_path) {
         Ok(_) => {
+            fs::remove_file(&tmp_file_path).expect("could not remove temporary file.");
             println!("---");
             println!("🎄 Successfully wrote input to \"{}\".", &input_path);
             exit_with_status(0, &tmp_file_path);
         }
         Err(e) => {
-            eprintln!("could not copy downloaded input to input file: {}", e);
+            eprintln!(
+                "could not copy downloaded input to input file: {} {}",
+                e, &input_path
+            );
             exit_with_status(1, &tmp_file_path);
         }
     }
