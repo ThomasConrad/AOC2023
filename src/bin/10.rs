@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use advent_of_code::helpers::get_safe;
 
 fn parse(input: &str) -> (Vec<Vec<u8>>, Vec<[isize; 2]>) {
-    let mut trailheads = Vec::new();
+    let mut heads = Vec::new();
     (
         input
             .lines()
@@ -13,14 +13,14 @@ fn parse(input: &str) -> (Vec<Vec<u8>>, Vec<[isize; 2]>) {
                     .enumerate()
                     .map(|(x, c)| {
                         if c == '0' {
-                            trailheads.push([x as isize, y as isize]);
+                            heads.push([x as isize, y as isize]);
                         }
                         c as u8 - b'0'
                     })
                     .collect()
             })
             .collect(),
-        trailheads,
+        heads,
     )
 }
 
@@ -51,18 +51,16 @@ fn hike<'a>(
                 .map(move |n| (n, *mult))
         })
         .fold(HashMap::new(), |mut acc, (p, mult)| {
-            let m = acc.entry(p).or_insert(0);
-            *m += mult;
-
+            *acc.entry(p).or_insert(0) += mult;
             acc
         });
     return hike(map, pos.iter(), height + 1);
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let (map, trailheads) = parse(input);
+    let (map, heads) = parse(input);
     Some(
-        trailheads
+        heads
             .iter()
             .map(|head| hike(&map, [(head, &1)].into_iter(), 0).len() as u32)
             .sum(),
@@ -70,17 +68,12 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let (map, trailheads) = parse(input);
+    let (map, heads) = parse(input);
     Some(
-        trailheads
+        hike(&map, heads.iter().map(|p| (p, &1)), 0)
             .iter()
-            .map(|head| {
-                hike(&map, [(head, &1)].into_iter(), 0)
-                    .iter()
-                    .map(|(_, v)| *v)
-                    .sum::<u32>() as u32
-            })
-            .sum(),
+            .map(|(_, v)| *v)
+            .sum::<u32>() as u32,
     )
 }
 
