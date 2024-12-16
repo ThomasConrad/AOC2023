@@ -14,12 +14,12 @@ fn parse(input: &str) -> (HashMap<char, Vec<[usize; 2]>>, [usize; 2]) {
                             let y = line_num;
                             return Some((c, [x, y]));
                         }
-                        return None;
+                        None
                     })
                     .collect::<Vec<_>>()
             })
             .fold(HashMap::new(), |mut acc, (c, pos)| {
-                acc.entry(c).or_insert_with(Vec::new).push(pos);
+                acc.entry(c).or_default().push(pos);
                 acc
             }),
         [
@@ -86,7 +86,7 @@ pub fn part_two(input: &str) -> Option<u32> {
                             if antenna_a == antenna_b {
                                 return None;
                             }
-                            let mut antinodes = vec![antenna_a.clone()];
+                            let mut antinodes = vec![*antenna_a];
                             let delta_x = antenna_b[0] as isize - antenna_a[0] as isize;
                             let delta_y = antenna_b[1] as isize - antenna_a[1] as isize;
                             let mut x = antenna_a[0] as isize + delta_x;

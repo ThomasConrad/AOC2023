@@ -55,7 +55,7 @@ pub fn part_one(input: &str) -> Option<u64> {
             (StorageBlock::Empty(space), _, Some(StorageBlock::Filled(num, id)))
             | (_, StorageBlock::Filled(num, id), Some(StorageBlock::Empty(space)))
             | (StorageBlock::Empty(space), StorageBlock::Filled(num, id), None) => {
-                match space.cmp(&num) {
+                match space.cmp(num) {
                     std::cmp::Ordering::Equal => {
                         optimized_storage.push(StorageBlock::Filled(*num, *id));
                         remaining = None;
@@ -116,10 +116,6 @@ pub fn part_two(input: &str) -> Option<u64> {
                         StorageBlock::Empty(space) => *space >= size,
                         _ => false,
                     });
-
-            if block.is_none() {
-            } else {
-            }
 
             //split block
             if let Some((idx, found @ StorageBlock::Empty(_))) = block {

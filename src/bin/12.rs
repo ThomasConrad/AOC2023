@@ -26,9 +26,9 @@ fn flood(
         .filter_map(|[dx, dy]| match get_safe([x + dx, y + dy], plants) {
             Some(&nbr_type) if nbr_type == plant_type => {
                 nbr_count += 1;
-                return flood(plants, groups, id, [x + dx, y + dy]);
+                flood(plants, groups, id, [x + dx, y + dy])
             }
-            _ => return None,
+            _ => None,
         })
         .collect::<Vec<_>>();
 

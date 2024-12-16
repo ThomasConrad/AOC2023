@@ -1,4 +1,4 @@
-use std::{cmp::Reverse, collections::HashSet};
+use std::collections::HashSet;
 
 use advent_of_code::helpers::get_safe;
 
@@ -58,7 +58,7 @@ impl Dir {
         }
     }
 
-    fn to_index(&self) -> usize {
+    fn get_index(&self) -> usize {
         match self {
             Self::Up => 0,
             Self::Right => 1,
@@ -67,7 +67,7 @@ impl Dir {
         }
     }
 
-    fn to_offset(&self) -> [isize; 2] {
+    fn get_offset(&self) -> [isize; 2] {
         match self {
             Self::Up => [0, -1],
             Self::Right => [1, 0],
@@ -97,11 +97,11 @@ impl PartialOrd for State {
 }
 
 /// Returns a list of reachable states from the current state.
-fn links(grid: &Vec<Vec<bool>>, state: &State) -> Vec<State> {
+fn links(grid: &[Vec<bool>], state: &State) -> Vec<State> {
     let mut links = Vec::new();
 
     let [x, y] = state.pos;
-    let [dx, dy] = state.dir.to_offset();
+    let [dx, dy] = state.dir.get_offset();
 
     let stepped_pos = [x + dx, y + dy];
 
@@ -143,7 +143,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         }
 
         let [x, y] = state.pos;
-        let idx = state.dir.to_index();
+        let idx = state.dir.get_index();
 
         if let Some(old_cost) = cost[y as usize][x as usize][idx] {
             if state.cost >= old_cost {
@@ -155,7 +155,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 
         for next_state in links(&grid, &state) {
             let [x, y] = next_state.pos;
-            let idx = next_state.dir.to_index();
+            let idx = next_state.dir.get_index();
             if let Some(old_cost) = cost[y as usize][x as usize][idx] {
                 if state.cost >= old_cost {
                     continue;
@@ -179,7 +179,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let (grid, [start, end]) = parse(input);
 
     let mut cost = vec![vec![vec![None::<CostlyPath>; 4]; grid[0].len()]; grid.len()];
-    cost[start[1] as usize][start[0] as usize][Dir::Right.to_index()] = Some(CostlyPath {
+    cost[start[1] as usize][start[0] as usize][Dir::Right.get_index()] = Some(CostlyPath {
         cost: 0,
         path: [start].into_iter().collect(),
     });
@@ -195,7 +195,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     while let Some(state) = queue.pop() {
         if state.pos == end {
             return Some(
-                cost[state.pos[1] as usize][state.pos[0] as usize][state.dir.to_index()]
+                cost[state.pos[1] as usize][state.pos[0] as usize][state.dir.get_index()]
                     .as_ref()
                     .unwrap()
                     .path
@@ -203,12 +203,12 @@ pub fn part_two(input: &str) -> Option<u32> {
             );
         }
         let [x, y] = state.pos;
-        let idx = state.dir.to_index();
+        let idx = state.dir.get_index();
 
         for next_state in links(&grid, &state) {
             let mut path = cost[y as usize][x as usize][idx].clone().unwrap().path;
             let [new_x, new_y] = next_state.pos;
-            let new_idx = next_state.dir.to_index();
+            let new_idx = next_state.dir.get_index();
             path.insert([new_x, new_y]);
 
             match &mut cost[new_y as usize][new_x as usize][new_idx] {

@@ -52,17 +52,12 @@ pub fn part_one(input: &str) -> Option<u32> {
 
         // print_grid(pos);
 
-        if pos[0] > WIDTH / 2 {
-            if pos[1] > HEIGHT / 2 {
-                quads[0] += 1;
-            } else if pos[1] < HEIGHT / 2 {
-                quads[1] += 1;
-            }
-        } else if pos[0] < WIDTH / 2 {
-            if pos[1] > HEIGHT / 2 {
-                quads[2] += 1;
-            } else if pos[1] < HEIGHT / 2 {
-                quads[3] += 1;
+        if pos[0] != WIDTH / 2 && pos[1] != HEIGHT / 2 {
+            match (pos[0] > WIDTH / 2, pos[1] > HEIGHT / 2) {
+                (true, true) => quads[0] += 1,
+                (true, false) => quads[1] += 1,
+                (false, true) => quads[2] += 1,
+                (false, false) => quads[3] += 1,
             }
         }
     }
@@ -95,7 +90,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         i += 1;
     }
 
-    print_grid(&states);
+    // print_grid(&states);
 
     Some(i as u32)
 }

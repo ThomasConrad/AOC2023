@@ -17,7 +17,7 @@ macro_rules! skip_fail {
 }
 
 //Safe 2d getter
-pub fn get_safe<T: Copy>(coord: [isize; 2], graph: &Vec<Vec<T>>) -> Option<&T> {
+pub fn get_safe<T: Copy>(coord: [isize; 2], graph: &[Vec<T>]) -> Option<&T> {
     if coord[0] < 0
         || coord[1] < 0
         || coord[1] as usize >= graph.len()

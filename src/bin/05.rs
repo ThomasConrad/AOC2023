@@ -93,7 +93,7 @@ fn check_ordering(bitfield: &BitField, update_list: &[u32]) -> bool {
     true
 }
 
-fn fix_ordering(bitfield: &BitField, update_list: &mut Vec<u32>) {
+fn fix_ordering(bitfield: &BitField, update_list: &mut [u32]) {
     let mut i = 0;
     let mut seen = vec![];
     'outer: while i < update_list.len() {

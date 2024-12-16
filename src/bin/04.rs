@@ -11,8 +11,8 @@ static DIRECTIONS: [[isize; 2]; 8] = [
     [-1, 1],
 ];
 
-fn start_search(field: &Vec<Vec<char>>, x: usize, y: usize) -> u32 {
-    if field[y as usize][x as usize] != 'X' {
+fn start_search(field: &[Vec<char>], x: usize, y: usize) -> u32 {
+    if field[y][x] != 'X' {
         return 0;
     }
     let mut count = 0;
@@ -33,8 +33,8 @@ fn start_search(field: &Vec<Vec<char>>, x: usize, y: usize) -> u32 {
     count
 }
 
-fn search_cross(field: &Vec<Vec<char>>, x: usize, y: usize) -> bool {
-    if field[y as usize][x as usize] != 'A' {
+fn search_cross(field: &[Vec<char>], x: usize, y: usize) -> bool {
+    if field[y][x] != 'A' {
         return false;
     }
 
@@ -58,7 +58,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut count = 0;
     for y in 0..field.len() {
         for x in 0..field[y].len() {
-            count += start_search(&field, x as usize, y as usize);
+            count += start_search(&field, x, y);
         }
     }
     Some(count)
@@ -73,7 +73,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut count = 0;
     for y in 1..field.len() - 1 {
         for x in 1..field[y].len() - 1 {
-            if search_cross(&field, x as usize, y as usize) {
+            if search_cross(&field, x, y) {
                 count += 1;
             }
         }

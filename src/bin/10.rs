@@ -24,7 +24,7 @@ fn parse(input: &str) -> (Vec<Vec<u8>>, Vec<[isize; 2]>) {
     )
 }
 
-fn get_neighbors(map: &Vec<Vec<u8>>, [x, y]: &[isize; 2], height: u8) -> Vec<[isize; 2]> {
+fn get_neighbors(map: &[Vec<u8>], [x, y]: &[isize; 2], height: u8) -> Vec<[isize; 2]> {
     [[-1, 0], [1, 0], [0, -1], [0, 1]]
         .iter()
         .filter_map(|[dx, dy]| {

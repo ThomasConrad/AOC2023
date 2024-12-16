@@ -57,7 +57,7 @@ pub fn part_one(input: &str) -> Option<u64> {
     Some(
         data.iter()
             .filter(|(target, components)| check_tree(*target, components, 0, false))
-            .map(|(target, _)| *target as u64)
+            .map(|(target, _)| { *target })
             .sum(),
     )
 }
@@ -67,7 +67,7 @@ pub fn part_two(input: &str) -> Option<u64> {
     Some(
         data.iter()
             .filter(|(target, components)| check_tree(*target, components, 0, true))
-            .map(|(target, _)| *target as u64)
+            .map(|(target, _)| { *target })
             .sum(),
     )
 }

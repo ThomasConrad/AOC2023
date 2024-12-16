@@ -1,37 +1,11 @@
-#![feature(linked_list_cursors)]
+use std::collections::HashMap;
 
-use std::collections::{HashMap, LinkedList};
-
-fn parse(input: &str) -> LinkedList<u64> {
+fn parse(input: &str) -> Vec<u64> {
     input
         .split_whitespace()
         .map(|s| s.parse().unwrap())
         .collect()
 }
-
-fn blink(nums: &mut LinkedList<u64>) {
-    let mut cursor = nums.cursor_front_mut();
-
-    while let Some(num) = cursor.current() {
-        match num {
-            0 => {
-                *num = 1;
-            }
-            // even case
-            num if num.ilog10() % 2 == 1 => {
-                let before = *num / 10u64.pow((num.ilog10() + 1) / 2);
-                let after = *num % 10u64.pow((num.ilog10() + 1) / 2);
-                *num = after;
-                cursor.insert_before(before);
-            }
-            _ => {
-                *num = *num * 2024;
-            }
-        }
-        cursor.move_next();
-    }
-}
-
 fn lanternfish(nums: &mut HashMap<u64, u64>) {
     let mut new_nums = HashMap::new();
     for (num, mult) in nums.iter() {
@@ -56,10 +30,15 @@ fn lanternfish(nums: &mut HashMap<u64, u64>) {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let mut nums = parse(input);
+    let nums = parse(input);
+
+    let mut hash_nums = nums.iter().fold(HashMap::new(), |mut acc, num| {
+        *acc.entry(*num).or_insert(0) += 1;
+        acc
+    });
 
     for _ in 0..25 {
-        blink(&mut nums);
+        lanternfish(&mut hash_nums);
     }
 
     Some(nums.len() as u32)
@@ -77,7 +56,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         lanternfish(&mut hash_nums);
     }
 
-    Some(hash_nums.iter().map(|(_, &v)| v as u64).sum())
+    Some(hash_nums.iter().map(|(_, &v)| v).sum())
 }
 
 #[cfg(feature = "solve")]
