@@ -1,0 +1,64 @@
+var nums = [];
+for (let i = 0; i < lines.length - 1; i++) {
+
+    let parts = lines[i].match(/\S+/g) || [];
+    var row = []
+    
+    for (let j = 0; j < parts.length; j++) {
+        let num = parseInt(parts[j]);
+        row.push(num);
+    }
+    nums.push(row); 
+}
+
+// console.log(nums);
+
+// part 1 
+var total = 0;  
+for (const [i, symbol] of (lines[lines.length - 1].match(/\S+/g) || []).entries()) {
+    let result = accum(nums, i, symbol);
+    total += result;
+}
+
+// len per col
+lens = [];
+for (let i = 0; i < nums[0].length; i++) {
+    let maxlen = 0;
+    for (let j = 0; j < nums.length; j++) {
+        let numlen = nums[j][i].toString().length;
+        if (numlen > maxlen) {
+            maxlen = numlen;
+        }
+    }
+    lens.push(maxlen);
+}
+
+console.log("Lens:", lens);
+// wack parsing ensues
+var groups = [];
+for (let i = 0; i < lines.length - 1; i++) {
+
+    //chunk in maxlen
+    var group = [];
+    let index = 0;
+    for (let j = 0; j < lens.length; j++) {
+        let chunk = lines[i].substr(index, lens[j]);
+        index += lens[j] + 1; // +1 for space
+        group.push(chunk);
+    }
+    groups.push(group);
+}
+
+console.log("Groups:", groups);
+
+// replace whitespace with 0
+for (let i = 0; i < groups.length; i++) {
+    for (let j = 0; j < groups[i].length; j++) {
+        let chunk = groups[i][j];
+        let newchunk = chunk.replace(/\s/g, "0");
+        groups[i][j] = newchunk;
+    }
+}
+
+console.log("Groups after whitespace replacement:", groups);
+
